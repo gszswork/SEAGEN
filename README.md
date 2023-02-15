@@ -1,2 +1,2 @@
 # SEAGEN
-Self-Attention Aware Graph Evolution Network
+Self-Exciting Aware Graph Evolution Network
