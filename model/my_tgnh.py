@@ -140,13 +140,7 @@ class TGN(torch.nn.Module):
 
     def forward(self, train_ngh_finder, batchsize, source_nodes, destination_nodes, edge_times, node_raw_features,
                 edge_idxs, n_unique_nodes, adj_list=None):
-        '''
-        if source_nodes.shape[0] > 2000:
-            source_nodes = source_nodes[:2000]
-            destination_nodes = destination_nodes[:2000]
-            edge_times = edge_times[:2000]
-            edge_idxs = edge_idxs[:2000]
-        '''
+
         self.node_raw_features = (torch.from_numpy(node_raw_features.astype(np.float)).to(
             self.device)).float()  # dtype=torch.float64
         self.embedding_module.node_features = self.node_raw_features

@@ -1,26 +1,21 @@
-import math
-import logging
-from tqdm import tqdm
+
 import time
 import sys
 import argparse
 import torch
-import numpy as np
-import pickle
+
 from pathlib import Path
-from torch.utils.data import DataLoader
-from evaluation.evaluation import eval_edge_prediction
+
 from model.my_tgnh import TGN
 from model.Transformer import *
 from utils.utils import EarlyStopMonitor, get_neighbor_finder
-from utils.dataset import loadTree, loadUdData, loadFNNData
-from utils.rand5fold import load5foldData
+from utils.dataset import loadTree, loadUdData, loadFNNData, loadFNNTestData
+
 from tqdm import tqdm
-import os
+
 from torch import nn
 from sklearn import metrics
-import random
-from random import shuffle
+
 from Transformer_utils import *
 # Tensorboard
 from torch.utils.tensorboard import SummaryWriter
@@ -71,7 +66,7 @@ class Net(nn.Module):
 
         self.batchsize = args.bs
         self.hawkes_module = hawkes(d_model=768, num_types=1)
-        self.cos = nn.CosineSimilarity(dim=0, eps=1e-6)
+
 
     def forward(self, data, train_ngh_finder):
         """
@@ -80,24 +75,16 @@ class Net(nn.Module):
         updated_embedding = self.tgn(train_ngh_finder, self.batchsize, data.sources, data.destinations,
                                         data.timestamps, data.unique_features, data.edge_idxs, data.n_unique_nodes,
                                         data.adj_list)
-        '''
-        cos_sum = torch.tensor(0.0).to(device)
-        for i in range(batch_avg.shape[0] -1):
-            cos_sum += self.cos(batch_avg[i], batch_avg[i+1])
-        '''
-        # updated_embedding [len_of_interactions, 768*2(dim)]
-        #torch.cuda.empty_cache()
-        # Transformer encode the historical updated embedding:
+
         updated_embedding = updated_embedding.unsqueeze(dim=1).float()
         timestamps = data.timestamps #if len(data.timestamps) <=128 else data.timestamps[:128]
         timestamps = torch.from_numpy(timestamps).to(device)
 
         updated_embedding = self.Transformer(updated_embedding, timestamps, has_mask=True)
-        #updated_embedding = self.Transformer.transformer_encoder(updated_embedding)
-        # updated_embedding: [seq_length, dim=1, 768]
+
         hawkes_data = updated_embedding.permute((1, 0, 2))
         event_ll, non_event_ll = log_likelihood(model=self.hawkes_module, data=hawkes_data[:, 2:], time=timestamps.unsqueeze(dim=0)[:, 2:])
-        # event_loss = -torch.sum(event_ll - non_event_ll) 2:
+
         updated_embedding = updated_embedding.squeeze(dim=1)
 
         out_feature = updated_embedding[-1]
@@ -310,12 +297,12 @@ def train_TGN(args, treeDic, x_test, x_train, weight_decay, patience, device):
         print(
             "Epoch id: {}, Epoch time: {:.3f} , avg_train_loss: {:.3f}, train_accuracy: {:.3f}, test_accuracy: {:.3f}".format(
                 epoch, epoch_time, avg_train_loss, train_accuracy,  test_accuracy))
-        #torch.save(model.state_dict(), get_model_path(epoch, round(train_accuracy, 3), round(test_accuracy, 3)))
+        torch.save(model.state_dict(), get_model_path(epoch, round(train_accuracy, 3), round(test_accuracy, 3)))
 
 
 def evaluate(model, fold0_x_test, fold0_x_train, device):
     model = model.to(device)
-    traindata_list, testdata_list = loadFNNData(fold0_x_train, fold0_x_test)
+    traindata_list, testdata_list = loadFNNTestData(fold0_x_train, fold0_x_test)
     num_item = 0
     ok = 0
 
@@ -361,19 +348,18 @@ if __name__ == '__main__':
     fold4_x_test = np.load('fnn_5_fold_ids/fold4_x_test.npy')
     fold4_x_train = np.load('fnn_5_fold_ids/fold4_x_train.npy')
 
-    is_train = True
+    is_train = False
 
     model = Net(args, device)
     model = model.to(device)
     if is_train:
 
-        #args.fd = 0
-        #train_TGN(args, treeDic, fold0_x_test, fold0_x_train, weight_decay, patience, device)
-
-        #args.fd = 1
-        #train_TGN(args, treeDic, fold1_x_test, fold1_x_train, weight_decay, patience, device)
-        #args.fd = 2
-        #train_TGN(args, treeDic, fold2_x_test, fold2_x_train, weight_decay, patience, device)
+        args.fd = 0
+        train_TGN(args, treeDic, fold0_x_test, fold0_x_train, weight_decay, patience, device)
+        args.fd = 1
+        train_TGN(args, treeDic, fold1_x_test, fold1_x_train, weight_decay, patience, device)
+        args.fd = 2
+        train_TGN(args, treeDic, fold2_x_test, fold2_x_train, weight_decay, patience, device)
         args.fd = 3
         train_TGN(args, treeDic, fold3_x_test, fold3_x_train, weight_decay, patience, device)
         args.fd = 4
@@ -381,27 +367,27 @@ if __name__ == '__main__':
 
     else:
         test_pred_sum, test_true_sum, correct_ids = [], [], []
-        model.load_state_dict(torch.load('saved_models/ours.TGN_Hawke Transformer/0_fold/46-0.961-0.915.pth'))
+        model.load_state_dict(torch.load('saved_models/seagen/0_fold/46-0.961-0.915.pth'))
         test_pred, test_true, correct_id = evaluate(model, fold0_x_test, fold0_x_train, device)
         test_pred_sum = [*test_pred_sum, *test_pred]
         test_true_sum = [*test_true_sum, *test_true]
         correct_ids = [*correct_ids, *correct_id]
-        model.load_state_dict(torch.load('saved_models/ours.TGN_Hawke Transformer/1_fold/48-0.967-0.916.pth'))
+        model.load_state_dict(torch.load('saved_models/seagen/1_fold/48-0.967-0.916.pth'))
         test_pred, test_true, correct_id = evaluate(model, fold1_x_test, fold1_x_train, device)
         test_pred_sum = [*test_pred_sum, *test_pred]
         test_true_sum = [*test_true_sum, *test_true]
         correct_ids = [*correct_ids, *correct_id]
-        model.load_state_dict(torch.load('saved_models/ours.TGN_Hawke Transformer/2_fold/36-0.96-0.911.pth'))
+        model.load_state_dict(torch.load('saved_models/seagen/2_fold/36-0.96-0.911.pth'))
         test_pred, test_true, correct_id = evaluate(model, fold2_x_test, fold2_x_train, device)
         test_pred_sum = [*test_pred_sum, *test_pred]
         test_true_sum = [*test_true_sum, *test_true]
         correct_ids = [*correct_ids, *correct_id]
-        model.load_state_dict(torch.load('saved_models/ours.TGN_Hawke Transformer/3_fold/27-0.944-0.929.pth'))
+        model.load_state_dict(torch.load('saved_models/seagen/3_fold/27-0.944-0.929.pth'))
         test_pred, test_true, correct_id = evaluate(model, fold3_x_test, fold3_x_train, device)
         test_pred_sum = [*test_pred_sum, *test_pred]
         test_true_sum = [*test_true_sum, *test_true]
         correct_ids = [*correct_ids, *correct_id]
-        model.load_state_dict(torch.load('saved_models/ours.TGN_Hawke Transformer/4_fold/41-0.958-0.932.pth'))
+        model.load_state_dict(torch.load('saved_models/seagen/4_fold/41-0.958-0.932.pth'))
         test_pred, test_true, correct_id = evaluate(model, fold4_x_test, fold4_x_train, device)
         test_pred_sum = [*test_pred_sum, *test_pred]
         test_true_sum = [*test_true_sum, *test_true]

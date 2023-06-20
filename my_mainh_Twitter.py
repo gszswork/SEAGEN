@@ -361,7 +361,7 @@ if __name__ == '__main__':
     fold4_x_test = np.load('5_fold_ids/fold4_x_test.npy')
     fold4_x_train = np.load('5_fold_ids/fold4_x_train.npy')
 
-    is_train = True
+    is_train = False
 
     model = Net(args, device)
     model = model.to(device)
@@ -369,7 +369,6 @@ if __name__ == '__main__':
 
         args.fd = 0
         train_TGN(args, treeDic, fold0_x_test, fold0_x_train, weight_decay, patience, device)
-
         args.fd = 1
         train_TGN(args, treeDic, fold1_x_test, fold1_x_train, weight_decay, patience, device)
         args.fd = 2
