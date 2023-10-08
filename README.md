@@ -17,7 +17,15 @@ Both the Twitter and FakeNewsNet datasets are proprocessed to fit the model in o
 
 ## Requirements
 
-The requirements of the project 
+The requirements of the project include package: 
+```
+networkx
+numpy
+pytorch
+scikit-learn
+```
+
+There is no specific version requirements. 
 
 ## To Reproduce the Experiment
 
