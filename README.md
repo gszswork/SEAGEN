@@ -11,12 +11,23 @@ Detecting fake news on social media is an increasingly important problem, becaus
 
 The dataset used in the paper are Twitter and FakeNewsNet. Twitter dataset is the fusion of publicly released dataset Twitter15 and Twitter16 by (Ma et al. 2016). The original data from Twitter15 and Twitter16 contains 4 labels (true-rumour, false-rumour, non-rumour and unverified). Only true-rumour and false-rumour data samples are collected and form the Twitter dataset, in which true-rumour is defined as true news, and false-rumour is defined as false/fake news. 
 
-FakeNewsNet dataset is released by 
+FakeNewsNet dataset is released by (Shu et al. 2020) with [link](https://github.com/KaiDMML/FakeNewsNet). Due the availability issue of the FakeNewsNet dataset, only a subset of it is used in the experiment. 
+
+Both the Twitter and FakeNewsNet datasets are proprocessed to fit the model in our paper. The preprocessed FakeNewsNet can be downloaded from [GoogleDrive Link](https://drive.google.com/file/d/1DwqMoI0owAYxpCm0jfJL_dlE5y2ignv4/view?usp=share_link). 
+
+## Requirements
+
+The requirements of the project 
 
 ## To Reproduce the Experiment
 
+For example with the FakeNewsNet dataset, download the FakeNewsNet dataset (link is provided above in Dataset), unzip it to the project path, and rename the dataset folder as 'fakenewsnet'. Then run command: 
 
+   ```sh
+    python my_main.py
+   ```
 ## Reference 
 
 [1] Jing Ma, Wei Gao, Kam-Fai Wong. Detect Rumors in Microblog Posts Using Propagation Structure via Kernel Learning. ACL 2017.
-[2] 
+
+[2] K. Shu, D. Mahudeswaran, S. Wang, D. Lee, and H. Liu, “Fakenewsnet: A data repository with news content, social context, and spatiotemporal information for studying fake news on social media,” Big data, vol. 8, no. 3, pp. 171–188, 2020.
