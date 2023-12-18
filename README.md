@@ -15,7 +15,7 @@ The dataset used in the paper are Twitter and FakeNewsNet. Twitter dataset is th
 
 FakeNewsNet dataset is released by (Shu et al. 2020) with [link](https://github.com/KaiDMML/FakeNewsNet). Due the availability issue of the FakeNewsNet dataset, only a subset of it is used in the experiment. 
 
-Both the Twitter and FakeNewsNet datasets are proprocessed to fit the model in our paper. The preprocessed FakeNewsNet can be downloaded from [GoogleDrive Link](https://drive.google.com/file/d/1DwqMoI0owAYxpCm0jfJL_dlE5y2ignv4/view?usp=share_link). 
+Both the Twitter and FakeNewsNet datasets are proprocessed to fit the model in our paper. The preprocessed FakeNewsNet can be downloaded from [GoogleDrive Link](https://drive.google.com/file/d/1paj_Qhwhx8rR8VlTHVIXxvDebIys2eED/view?usp=share_link). 
 
 ## Requirements
 
@@ -31,7 +31,7 @@ There is no specific version requirements.
 
 ## To Reproduce the Experiment
 
-For example with the FakeNewsNet dataset, download the FakeNewsNet dataset (link is provided above in Dataset), unzip it to the project path, and rename the dataset folder as 'fakenewsnet'. Then run command: 
+For example with the FakeNewsNet dataset, download the FakeNewsNet dataset (link is provided above in Dataset), unzip it to the project path, and name the dataset folder as 'fakenewsnet'. Then run command: 
 
    ```sh
     python my_main.py
