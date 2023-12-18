@@ -31,7 +31,7 @@ There is no specific version requirements.
 
 ## To Reproduce the Experiment
 
-For example with the FakeNewsNet dataset, download the FakeNewsNet dataset (link is provided above in Dataset), unzip it to the project path, and rename the dataset folder as 'fakenewsnet'. Then run command: 
+For example with the FakeNewsNet dataset, download the FakeNewsNet dataset (link is provided above in Dataset), unzip it to the project path, and name the dataset folder as 'fakenewsnet'. Then run command: 
 
    ```sh
     python my_main.py
