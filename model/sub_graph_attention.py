@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 from utils.utils import MergeLayer
-
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class TemporalAttentionLayer(torch.nn.Module):
     """
@@ -80,7 +80,7 @@ class TemporalAttentionLayer(torch.nn.Module):
         neighbors_padding_mask[invalid_neighborhood_mask.squeeze(), 0] = False
 
         #print(neighbors_padding_mask)  #[batch_size, n_neighbors]
-        mask_addition = torch.ones([neighbors_padding_mask.shape[0], 1], dtype=torch.bool).to('cuda')
+        mask_addition = torch.ones([neighbors_padding_mask.shape[0], 1], dtype=torch.bool).to(device)
         neighbors_padding_mask = torch.cat([mask_addition, neighbors_padding_mask], dim=1)
         #print(key.shape, neighbors_padding_mask.shape)
         attn_output, attn_output_weights = self.multi_head_target(query=query, key=key, value=key,
